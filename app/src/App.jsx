@@ -84,15 +84,20 @@ function App() {
   const [msgErr, setMsgErr] = useState(false);
   const [nominated, setNominated] = useState(new Map());
   const [initLocalStorageLoaded, setInitLocalStorageLoaded] = useState(false);
-
+  const [msgTimeoutID, setMsgTimeoutID] = useState(null);
   // message banner helper function
   const setMessage = (msg, err, time) => {
     const delay = time || 3000;
     setMsg(msg);
     setMsgErr(err);
-    setTimeout(() => {
-      setMsg('');
-    }, delay);
+    if (msgTimeoutID) {
+      clearTimeout(msgTimeoutID);
+    }
+    setMsgTimeoutID(
+      setTimeout(() => {
+        setMsg('');
+      }, delay)
+    );
   };
 
   // ============================================= helpers for loading movie info from api =============================================
