@@ -1,0 +1,53 @@
+.App {
+  background-color: #eeeeee;
+  min-height: 100vh;
+}
+
+#title {
+  display: inline-block;
+}
+
+.toast-header {
+  color: black;
+}
+
+.far.fa-share-square {
+  font-size: 2em;
+  cursor: pointer;
+}
+.far.fa-share-square:hover {
+  color: #28f016;
+}
+
+.badge {
+  background-color: #1068cc;
+}
+
+p {
+  margin-bottom: 0 !important;
+  width: 100%;
+}
+
+.list-group-item {
+  display: block;
+}
+.movie-info {
+  width: 100%;
+}
+
+.movie-poster {
+  width: 100%;
+  max-width: 20em;
+}
+
+.sticky-top {
+  top: 0.5em !important;
+}
+
+.far.fa-share-square {
+  float: right;
+}
+
+img {
+  padding: 5px;
+}
