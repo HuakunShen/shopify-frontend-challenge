@@ -98,7 +98,7 @@ function App() {
   // ============================================= helpers for loading movie info from api =============================================
   const searchByTitle = () => {
     return new Promise((resolve, reject) => {
-      fetch(`http://www.omdbapi.com/?s=${searchTerm}&apikey=${pmdbapi_key}`)
+      fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=${pmdbapi_key}`)
         .then((res) => res.json())
         .then(
           (result) => {
@@ -117,7 +117,7 @@ function App() {
 
   const searchById = (id) => {
     return new Promise((resolve, reject) => {
-      fetch(`http://www.omdbapi.com/?i=${id}&apikey=${pmdbapi_key}`)
+      fetch(`https://www.omdbapi.com/?i=${id}&apikey=${pmdbapi_key}`)
         .then((res) => res.json())
         .then(
           (result) => {
