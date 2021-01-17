@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import $ from 'jquery';
 
 const pmdbapi_key = '1583369f';
 const nominate_size = 5;
@@ -82,7 +83,7 @@ function App() {
   // const [nominateStatus, setNominateStatus] = useState([]);
   const [msg, setMsg] = useState('');
   const [msgErr, setMsgErr] = useState(false);
-  const [nominated, setNominated] = useState(new Map());
+  const [nominated, setNominated] = useState([]);
   const [initLocalStorageLoaded, setInitLocalStorageLoaded] = useState(false);
   const [msgTimeoutID, setMsgTimeoutID] = useState(null);
   // message banner helper function
@@ -152,13 +153,9 @@ function App() {
         promises.push(searchById(id));
       }
     });
-    const shared_movies = new Map();
     Promise.all(promises)
       .then((results) => {
-        results.forEach((movie) => {
-          shared_movies.set(movie.imdbID, movie);
-        });
-        setNominated(shared_movies);
+        setNominated(results);
       })
       .catch((err) => {
         setMessage(`Error: Got error while loading shared movies. ${err}`);
@@ -189,13 +186,18 @@ function App() {
     if (initLocalStorageLoaded) {
       localStorage.setItem(
         'movie_ids',
-        Array.from(nominated)
-          .map((id_movie_pair, idx) => id_movie_pair[0])
-          .join(',')
+        nominated.map((movie) => movie.imdbID).join(',')
       );
+      if (nominated.size === nominate_size) {
+        setMessage(
+          `${nominate_size} movies are nominated, you reached the limit`,
+          false
+        );
+      }
     } else {
       setInitLocalStorageLoaded(true);
     }
+    // eslint-disable-next-line
   }, [nominated, initLocalStorageLoaded]);
 
   // When input (searchTerm) changes, do a search with AP
@@ -217,35 +219,38 @@ function App() {
 
   // ============================================= onClick events =============================================
   const nominateOnCLick = (idx, movie) => {
-    if (nominated.has(movie.imdbID)) {
+    console.log('click nominate');
+    if (isNominated(movie)) {
       setMessage(
         "Error: Invalid Click on Nominate Button (Shouldnn't be able to click)",
         true
       );
     } else {
-      if (nominated.size >= nominate_size) {
+      if (nominated.length >= nominate_size) {
         setMessage(
           `You reach the max nomination limit: ${nominate_size}`,
           true
         );
       } else {
-        const copy = new Map(nominated);
-        copy.set(movie.imdbID, movie);
-        setNominated(copy);
+        setNominated([...nominated, movie]);
       }
     }
   };
 
-  const removeOnClick = (movie) => {
-    const copy = new Map(nominated);
-    copy.delete(movie.imdbID);
-    setNominated(copy);
+  const removeAnimation = (element) => {
+    $(element).addClass('removing');
+    $(element).children('*').addClass('removing');
+  };
+
+  const removeOnClick = (e, movie) => {
+    removeAnimation(e.target.parentElement);
+    setTimeout(() => {
+      setNominated(nominated.filter((m) => m.imdbID !== movie.imdbID));
+    }, 850);
   };
 
   const shareOnClick = (e) => {
-    const id_arr = Array.from(nominated).map((id_movie_pair, idx) => {
-      return id_movie_pair[0];
-    });
+    const id_arr = nominated.map((movie) => movie.imdbID);
     if (id_arr.length === 0) {
       setMessage('Nothing to Share', true);
       return;
@@ -263,11 +268,27 @@ function App() {
     );
   };
 
+  const isNominated = (movie) => {
+    for (let i = 0; i < nominated.length; i++) {
+      if (nominated[i].imdbID === movie.imdbID) return true;
+    }
+    return false;
+  };
+
   return (
     <div className='App'>
       <div className='container pt-5'>
         <h2 id='title'>The Shoppies</h2>
+
         <i className='far fa-share-square' onClick={shareOnClick}></i>
+        <a
+          id='source-code-link'
+          target='_blank'
+          rel='noreferrer'
+          href='https://github.com/HuakunShen/shopify-frontend-challenge'
+        >
+          <i className='fas fa-code'></i>
+        </a>
         <div className='card'>
           <div className='card-body'>
             <label htmlFor='search-box'>Movie Title</label>
@@ -305,6 +326,7 @@ function App() {
             <div className='card'>
               <div id='movie-list' className='card-body'>
                 <h3>Results For {searchTerm ? `"${searchTerm}"` : '...'}</h3>
+
                 <ul className='list-group'>
                   {movies.map((movie, idx) => {
                     return (
@@ -315,7 +337,7 @@ function App() {
                         {<MovieCard movie={movie} />}
                         <button
                           className='btn btn-primary btn-sm'
-                          disabled={nominated.has(movie.imdbID) ? true : false}
+                          disabled={isNominated(movie)}
                           onClick={() => nominateOnCLick(idx, movie)}
                         >
                           Nominate
@@ -323,6 +345,13 @@ function App() {
                       </li>
                     );
                   })}
+                  {movies.length !== 0 ? null : (
+                    <div className='d-flex justify-content-center pt-4'>
+                      <div className='spinner-border' role='status'>
+                        <span className='sr-only'>Loading...</span>
+                      </div>
+                    </div>
+                  )}
                 </ul>
               </div>
             </div>
@@ -332,18 +361,17 @@ function App() {
               <div className='card-body'>
                 <h3>Nominations</h3>
                 <ul className='list-group'>
-                  {Array.from(nominated).map((id_movie_pair, idx) => {
-                    const movie = id_movie_pair[1];
+                  {nominated.map((movie) => {
                     return (
                       <li
-                        key={idx}
+                        key={movie.imdbID}
                         className='list-group-item d-flex justify-content-between align-items-center'
                       >
                         {<MovieCard movie={movie} />}
                         <button
                           className='btn btn-danger btn-sm'
                           disabled={false}
-                          onClick={() => removeOnClick(movie)}
+                          onClick={(e) => removeOnClick(e, movie)}
                         >
                           Remove
                         </button>

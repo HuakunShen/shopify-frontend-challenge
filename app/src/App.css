@@ -11,9 +11,16 @@
   color: black;
 }
 
+#source-code-link {
+  float: right;
+  font-size: 1.5em;
+  margin-right: 1em;
+}
+
 .far.fa-share-square {
   font-size: 2em;
   cursor: pointer;
+  float: right;
 }
 .far.fa-share-square:hover {
   color: #28f016;
@@ -21,6 +28,29 @@
 
 .badge {
   background-color: #1068cc;
+}
+
+li.list-group-item,
+li.list-group-item > * {
+  transition-duration: 1s;
+  overflow: hidden;
+  max-height: 100vh;
+  opacity: 1;
+}
+
+li.list-group-item.removing {
+  max-height: 0;
+  opacity: 0;
+}
+
+li.list-group-item > button {
+  overflow: visible;
+  transition-duration: 1s;
+  opacity: 1;
+}
+
+li.list-group-item > button.removing {
+  opacity: 0;
 }
 
 p {
@@ -42,10 +72,6 @@ p {
 
 .sticky-top {
   top: 0.5em !important;
-}
-
-.far.fa-share-square {
-  float: right;
 }
 
 img {
